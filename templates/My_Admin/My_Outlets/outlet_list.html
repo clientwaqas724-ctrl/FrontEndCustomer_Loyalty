@@ -1,0 +1,163 @@
+{% extends 'My_Admin/base.html' %}
+{% load static %}
+{% block title %}Outlet List - Admin Portal{% endblock %}
+{% block content %}
+
+<!-- Top Bar -->
+<div class="top-bar">
+    <div class="page-title">
+        <button type="button" id="sidebarCollapse" class="toggle-btn me-3">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h1>Dashboard</h1>
+    </div>
+    
+    <div class="user-info">
+        <div class="user-details">
+            <div class="user-role">{{ user_profile.email }}</div>
+            {% if user_profile.role %}
+                <div class="user-role">{{ user_profile.role|title }}</div>
+            {% endif %}
+        </div>
+        <div class="user-avatar">
+            {{ user_profile.name|first|upper }}
+        </div>
+        <div class="dropdown">
+            <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-ellipsis-v"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
+                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profile</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+            </ul>
+        </div>
+        <div class="user-name">{{ user_profile.name|default:"Admin" }}</div>
+    </div>
+</div>
+<br>
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Outlet Management</h1>
+        <a href="{% url 'add_outlet' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+            <i class="fas fa-plus fa-sm text-white-50"></i> Add New Outlet
+        </a>
+    </div>
+
+    <!-- Display Messages -->
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Search Bar -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <form method="GET" action="{% url 'outlet_list' %}" class="form-inline">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="search" placeholder="Search outlets by name, city, state, country, or address..." value="{{ search_query }}">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Outlets Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">All Outlets</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Merchant</th>
+                            <th>Address</th>
+                            <th>City</th>
+                            <th>State</th>
+                            <th>Country</th>
+                            <th>Contact</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for outlet in outlets %}
+                        <tr>
+                            <td>{{ outlet.id }}</td>
+                            <td>{{ outlet.name }}</td>
+                            <td>{{ outlet.merchant_name|default:"N/A" }}</td>
+                            <td>{{ outlet.address|default:"N/A" }}</td>
+                            <td>{{ outlet.city|default:"N/A" }}</td>
+                            <td>{{ outlet.state|default:"N/A" }}</td>
+                            <td>{{ outlet.country|default:"N/A" }}</td>
+                            <td>{{ outlet.contact_number|default:"N/A" }}</td>
+                            <td>
+                                {% if outlet.created_at %}
+                                    {{ outlet.created_at|slice:":10"|default:"N/A"}}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'edit_outlet' outlet.id %}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <a href="{% url 'delete_outlet' outlet.id %}" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="10" class="text-center">No outlets found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <!-- Pagination -->
+            {% if outlets.has_other_pages %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if outlets.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ outlets.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for i in outlets.paginator.page_range %}
+                    <li class="page-item {% if outlets.number == i %}active{% endif %}">
+                        <a class="page-link" href="?page={{ i }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ i }}</a>
+                    </li>
+                    {% endfor %}
+                    
+                    {% if outlets.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ outlets.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
