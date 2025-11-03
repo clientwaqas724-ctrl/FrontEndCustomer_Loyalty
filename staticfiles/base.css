@@ -1,0 +1,80 @@
+/* Custom Styles for Dashboard */
+.empty-state {
+    padding: 2rem;
+    text-align: center;
+}
+
+.merchant-logo {
+    border: 2px solid #dee2e6;
+    transition: transform 0.2s;
+}
+
+.merchant-logo:hover {
+    transform: scale(1.1);
+}
+
+.no-logo-placeholder {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border-radius: 5px;
+    border: 1px dashed #dee2e6;
+}
+
+.points-badge {
+    background: #fff3cd;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #ffeaa7;
+}
+
+.outlet-address {
+    line-height: 1.4;
+}
+
+.location-info .badge {
+    margin: 2px;
+}
+
+.coordinates {
+    font-family: monospace;
+}
+
+.promotion-description, .coupon-description {
+    max-width: 200px;
+    word-wrap: break-word;
+}
+
+/* Table enhancements */
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* Card enhancements */
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+/* Badge enhancements */
+.badge {
+    font-size: 0.75em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .btn-group-sm .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+}
