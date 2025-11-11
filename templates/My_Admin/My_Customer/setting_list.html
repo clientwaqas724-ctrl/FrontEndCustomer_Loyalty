@@ -1,0 +1,98 @@
+{% extends 'My_Admin/base.html' %}
+{% load static %}
+{% block title %}My Admin List - Admin Portal{% endblock %}
+{% block content %}
+
+<!-- Top Bar -->
+<div class="top-bar">
+    <div class="page-title">
+        <button type="button" id="sidebarCollapse" class="toggle-btn me-3">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h1>Dashboard</h1>
+    </div>
+    
+    <div class="user-info">
+        <div class="user-details">
+            <div class="user-role">{{ user_profile.email }}</div>
+            {% if user_profile.role %}
+                <div class="user-role">{{ user_profile.role|title }}</div>
+            {% endif %}
+        </div>
+        <div class="user-avatar">
+            {{ user_profile.name|first|upper }}
+        </div>
+        <div class="dropdown">
+            <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-ellipsis-v"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
+                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profile</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+            </ul>
+        </div>
+        <div class="user-name">{{ user_profile.name|default:"Admin" }}</div>
+    </div>
+</div>
+
+<br>
+<div class="container-fluid">
+    <!-- Messages -->
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <!-- Customers Table -->
+    <div class="card shadow mb-4 bg-primary">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-white">All Admin Management (Role: Admin)</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th style="background-color: blue;color: whitesmoke;border: 2px solid rgb(29, 29, 29);text-align: center;">ID</th>
+                            <th style="background-color: blue;color: whitesmoke;border: 2px solid rgb(29, 29, 29);text-align: center;">Name</th>
+                            <th style="background-color: blue;color: whitesmoke;border: 2px solid rgb(29, 29, 29);text-align: center;">Email</th>
+                            <th style="background-color: blue;color: whitesmoke;border: 2px solid rgb(29, 29, 29);text-align: center;">Phone</th>
+                            <th style="background-color: blue;color: whitesmoke;border: 2px solid rgb(29, 29, 29);text-align: center;">Created Date</th>
+                            <th style="background-color: blue;color: whitesmoke;border: 2px solid rgb(29, 29, 29);text-align: center;">Updated Date</th>
+                            <th style="background-color: blue;color: whitesmoke;border: 2px solid rgb(29, 29, 29);text-align: center;">Role</th>
+                        </tr>
+                    </thead>
+<!--=========================================================================================================================================-->
+                    <!-- In your table body -->
+                    <tbody>
+                        {% for customer in customers %}
+                        <tr>
+                            <td style="background-color: rgb(12, 12, 12);color: whitesmoke;border: 2px solid rgb(243, 240, 240);text-align: center;">{{ customer.id|default:"N/A" }}</td>
+                            <td style="background-color: rgb(12, 12, 12);color: whitesmoke;border: 2px solid rgb(243, 240, 240);text-align: center;">{{ customer.name|default:"N/A" }}</td>
+                            <td style="background-color: rgb(12, 12, 12);color: whitesmoke;border: 2px solid rgb(243, 240, 240);text-align: center;">{{ customer.email|default:"N/A" }}</td>
+                            <td style="background-color: rgb(12, 12, 12);color: whitesmoke;border: 2px solid rgb(243, 240, 240);text-align: center;">{{ customer.phone|default:"N/A" }}</td>
+                            <td style="background-color: rgb(12, 12, 12);color: whitesmoke;border: 2px solid rgb(243, 240, 240);text-align: center;">{{ customer.created_at|default:"N/A" }}</td>
+                            <td style="background-color: rgb(12, 12, 12);color: whitesmoke;border: 2px solid rgb(243, 240, 240);text-align: center;">{{ customer.updated_at|default:"N/A" }}</td>
+                            <td style="background-color: rgb(12, 12, 12);color: whitesmoke;border: 2px solid rgb(243, 240, 240);text-align: center;">
+                                <span class="badge text-white">{{ customer.role|default:"admin"|title }}</span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+<!---=============================================================================================================================================-->
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

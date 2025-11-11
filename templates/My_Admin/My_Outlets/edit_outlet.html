@@ -1,0 +1,221 @@
+{% extends 'My_Admin/base.html' %}
+{% load static %}
+{% block title %}Edit Outlet - Admin Portal{% endblock %}
+{% block content %}
+
+<div class="top-bar">
+    <div class="page-title">
+        <button type="button" id="sidebarCollapse" class="toggle-btn me-3">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h1>Dashboard</h1>
+    </div>
+    <div class="user-info">
+        <div class="user-details">
+            <div class="user-role">{{ user_profile.email }}</div>
+            {% if user_profile.role %}
+                <div class="user-role">{{ user_profile.role|title }}</div>
+            {% endif %}
+        </div>
+        <div class="user-avatar">{{ user_profile.name|first|upper }}</div>
+        <div class="dropdown">
+            <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-ellipsis-v"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
+                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profile</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+            </ul>
+        </div>
+        <div class="user-name">{{ user_profile.name|default:"Admin" }}</div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Edit Outlet</h1>
+        <a href="{% url 'outlet_list' %}" class="btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Back to Outlets
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Outlet Information</h6>
+        </div>
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data" id="editOutletForm">
+                {% csrf_token %}
+                
+                <!-- Merchant -->
+                <div class="form-group">
+                    <label for="merchant">Merchant *</label>
+                    <select class="form-control" id="merchant" name="merchant" required>
+                        <option value="" disabled>Select Merchant</option>
+                        {% for merchant in merchants %}
+                            <option value="{{ merchant.id }}" {% if outlet.merchant.id == merchant.id %}selected{% endif %}>
+                                {{ merchant.company_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <br>
+
+                <!-- Name & Address -->
+                <div class="form-group">
+                    <label for="name">Outlet Name *</label>
+                    <input type="text" class="form-control" id="name" name="name" required value="{{ outlet.name }}">
+                </div>
+                <br>
+                <div class="form-group">
+                    <label for="address">Address *</label>
+                    <input type="text" class="form-control" id="address" name="address" required value="{{ outlet.address }}">
+                </div>
+                <br>
+
+                <!-- City / State / Country -->
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="city">City *</label>
+                        <input type="text" class="form-control" id="city" name="city" required value="{{ outlet.city }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="state">State *</label>
+                        <select class="form-control" id="state" name="state" required>
+                            {% for state in malaysian_states %}
+                                <option value="{{ state }}" {% if outlet.state == state %}selected{% endif %}>{{ state }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="country">Country *</label>
+                        <input type="text" class="form-control" id="country" name="country" required value="{{ outlet.country }}">
+                    </div>
+                </div>
+                <br>
+
+                <!-- Latitude & Longitude -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="latitude">Latitude *</label>
+                        <input type="number" step="any" class="form-control" id="latitude" name="latitude" required value="{{ outlet.latitude }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="longitude">Longitude *</label>
+                        <input type="number" step="any" class="form-control" id="longitude" name="longitude" required value="{{ outlet.longitude }}">
+                    </div>
+                </div>
+                <br>
+
+                <!-- Contact / Email -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="contact_number">Contact Number *</label>
+                        <input type="text" class="form-control" id="contact_number" name="contact_number" required value="{{ outlet.contact_number }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ outlet.email }}">
+                    </div>
+                </div>
+                <br>
+
+                <!-- Image Upload / URL -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="outlet_image">Outlet Image</label>
+                        <input type="file" class="form-control" id="outlet_image" name="outlet_image">
+                        {% if outlet.outlet_image_url %}
+                            <img src="{{ outlet.outlet_image_url }}" alt="Current Image" class="img-thumbnail mt-2" style="max-width:150px;">
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="outlet_image_url">Image URL</label>
+                        <input type="url" class="form-control" id="outlet_image_url" name="outlet_image_url" value="{{ outlet.outlet_image_url }}">
+                    </div>
+                </div>
+                <br>
+
+                <!-- Buttons -->
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-success btn-icon-split">
+                        <span class="icon text-white-50"><i class="fas fa-save"></i></span>
+                        <span class="text">Update Outlet</span>
+                    </button>
+                    <a href="{% url 'outlet_list' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('editOutletForm');
+    const outletId = "{{ outlet.id }}";
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(form);  // Handles both files and normal fields
+
+        // Validation
+        const requiredFields = ['merchant', 'name', 'address', 'city', 'state', 'country', 'latitude', 'longitude', 'contact_number'];
+        for (let field of requiredFields) {
+            if (!formData.get(field)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    text: 'Please fill all required fields',
+                    confirmButtonColor: '#d33'
+                });
+                return;
+            }
+        }
+
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        fetch(`{{ OUTLETS_API_URL }}${outletId}/`, {
+            method: 'PUT',
+            headers: { 'X-CSRFToken': csrfToken },
+            body: formData
+        })
+        .then(response => response.json().then(data => ({ status: response.status, body: data })))
+        .then(res => {
+            if (res.status === 200 || res.status === 201) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Outlet Updated!',
+                    text: 'Outlet has been successfully updated.',
+                    confirmButtonColor: '#3085d6'
+                }).then(() => { window.location.href = "{% url 'outlet_list' %}"; });
+            } else {
+                let errors = [];
+                for (let field in res.body) {
+                    errors.push(`${field}: ${res.body[field]}`);
+                }
+                Swal.fire({ icon: 'error', title: 'Update Failed', text: errors.join(', '), confirmButtonColor: '#d33' });
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            Swal.fire({ icon: 'error', title: 'Update Failed', text: 'Unexpected error occurred.', confirmButtonColor: '#d33' });
+        });
+    });
+});
+</script>
+{% endblock %}
