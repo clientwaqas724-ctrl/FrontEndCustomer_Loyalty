@@ -36,6 +36,7 @@ urlpatterns = [
     # Customer URLs
     path('customers/', views.customer_list, name='customer_list'),
     path('customers/add/', views.add_customer, name='add_customer'),
+    path('customers/update/<uuid:customer_id>/', views.update_customer, name='update_customer'),
     ###################################################################################################
     # Transaction URLs
     path('setting_list/',views.setting_list,name='setting_list'),
@@ -56,3 +57,4 @@ urlpatterns = [
 
 
 ]
+
