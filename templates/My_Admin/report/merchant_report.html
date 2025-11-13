@@ -1,0 +1,60 @@
+{% extends 'My_Admin/base.html' %}
+{% load static %}
+{% block title %}Merchant Report - Admin Portal{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Merchant Report</h1>
+
+    <!-- Buttons for Export -->
+    <div class="mb-3">
+        <a href="{% url 'export_merchants_pdf' %}" class="btn btn-danger btn-sm">
+            <i class="fas fa-file-pdf"></i> Export PDF
+        </a>
+        <a href="{% url 'export_merchants_excel' %}" class="btn btn-success btn-sm">
+            <i class="fas fa-file-excel"></i> Export Excel
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header">
+            <h6 class="m-0 font-weight-bold text-primary">All Merchants</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="merchantTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Company Name</th>
+                            <th>Logo</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Updated</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for merchant in merchants %}
+                        <tr>
+                            <td>{{ merchant.id }}</td>
+                            <td>{{ merchant.user }}</td>
+                            <td>{{ merchant.company_name }}</td>
+                            <td>
+                                {% if merchant.logo_url %}
+                                <img src="{{ merchant.logo_url }}" alt="Logo" height="40">
+                                {% else %} N/A {% endif %}
+                            </td>
+                            <td>{{ merchant.status|title }}</td>
+                            <td>{{ merchant.created_at|date:"Y-m-d" }}</td>
+                            <td>{{ merchant.updated_at|date:"Y-m-d" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="7" class="text-center">No merchants found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

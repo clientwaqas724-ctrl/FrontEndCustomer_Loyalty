@@ -1,0 +1,151 @@
+{% extends 'My_Admin/base.html' %}
+{% load static %}
+{% block title %}Add New Merchant - Admin Portal{% endblock %}
+{% block content %}
+<div class="top-bar">
+    <div class="page-title">
+        <button type="button" id="sidebarCollapse" class="toggle-btn me-3">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h1>Dashboard</h1>
+    </div>
+    
+    <div class="user-info">
+        <div class="user-details">
+            <div class="user-role">{{ user_profile.email }}</div>
+            {% if user_profile.role %}
+                <div class="user-role">{{ user_profile.role|title }}</div>
+            {% endif %}
+        </div>
+        <div class="user-avatar">{{ user_profile.name|first|upper }}</div>
+        <div class="dropdown">
+            <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-ellipsis-v"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
+                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profile</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+            </ul>
+        </div>
+        <div class="user-name">{{ user_profile.name|default:"Admin" }}</div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Add New Merchant</h1>
+        <a href="{% url 'merchant_list' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Back to Merchants
+        </a>
+    </div>
+
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Merchant Information</h6>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{% url 'add_merchant' %}" id="addMerchantForm">
+                {% csrf_token %}
+
+                <!-- User -->
+                <div class="form-group">
+                    <label for="user">User *</label>
+                    <select class="form-control" id="user" name="user" required>
+                        <option value="">Select user...</option>
+                        {% for user in users %}
+                            <option value="{{ user.id }}">{{ user.username }} ({{ user.email }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <br>
+
+                <!-- Company Name -->
+                <div class="form-group">
+                    <label for="company_name">Company Name *</label>
+                    <input type="text" class="form-control" id="company_name" name="company_name" required placeholder="Enter company name">
+                </div>
+                <br>
+
+                <!-- Logo URL -->
+                <div class="form-group">
+                    <label for="logo_url">Logo URL *</label>
+                    <input type="url" class="form-control" id="logo_url" name="logo_url" required placeholder="https://example.com/logo.png">
+                </div>
+                <br>
+
+                <!-- Status -->
+                <div class="form-group">
+                    <label for="status">Status *</label>
+                    <select class="form-control" id="status" name="status" required>
+                        <option value="">Select status...</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+                <br>
+
+                <!-- Outlet -->
+                <div class="form-group">
+                    <label for="outlet">Select Outlet *</label>
+                    <select class="form-control" id="outlet" name="outlet" required>
+                        <option value="">Select outlet...</option>
+                        {% for outlet in outlets %}
+                            <option value="{{ outlet.id }}">
+                                {{ outlet.name }}{% if outlet.merchant_assigned %} (Assigned){% endif %}
+                        </option>
+                        {% endfor %}
+
+                    </select>
+                    {% if not outlets %}
+                        <small class="text-danger">No available outlets to assign. All outlets are already linked to merchants.</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-success btn-icon-split">
+                        <span class="icon text-white-50"><i class="fas fa-plus"></i></span>
+                        <span class="text">Create Merchant</span>
+                    </button>
+                    <a href="{% url 'merchant_list' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('addMerchantForm');
+    form.addEventListener('submit', function(e) {
+        const user = document.getElementById('user').value;
+        const companyName = document.getElementById('company_name').value.trim();
+        const logoUrl = document.getElementById('logo_url').value.trim();
+        const status = document.getElementById('status').value;
+        const outlet = document.getElementById('outlet').value;
+
+        if (!user || !companyName || !logoUrl || !status || !outlet) {
+            e.preventDefault();
+            alert('Please fill in all required fields including outlet.');
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}
