@@ -1,0 +1,330 @@
+{% extends 'My_Admin/base.html' %}
+{% load static %}
+{% block title %}Delete Merchant - Admin Portal{% endblock %}
+{% block content %}
+
+<!-- Top Bar -->
+<div class="top-bar">
+    <div class="page-title">
+        <button type="button" id="sidebarCollapse" class="toggle-btn me-3">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h1>Delete Merchant</h1>
+    </div>
+    
+    <div class="user-info">
+        <div class="user-details">
+            <div class="user-email">{{ user_profile.email|default:"user@example.com" }}</div>
+            {% if user_profile.role %}
+                <div class="user-role">{{ user_profile.role|title }}</div>
+            {% else %}
+                <div class="user-role">Admin</div>
+            {% endif %}
+        </div>
+        <div class="user-avatar">
+            {% if user_profile.name %}
+                {{ user_profile.name|first|upper }}
+            {% else %}
+                {{ user_profile.email|first|upper|default:"A" }}
+            {% endif %}
+        </div>
+        <div class="dropdown">
+            <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-ellipsis-v"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
+                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profile</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+            </ul>
+        </div>
+        <div class="user-name">{{ user_profile.name|default:"Admin" }}</div>
+    </div>
+</div>
+<br>
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Delete Merchant</h1>
+        <a href="{% url 'merchant_list1' %}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Back to Merchants
+        </a>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-danger text-white">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Confirm Deletion
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <!-- Warning Alert -->
+                    <div class="alert alert-danger border-left-danger">
+                        <h4 class="alert-heading">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Warning: Irreversible Action
+                        </h4>
+                        <p class="mb-0">You are about to permanently delete a merchant. This action cannot be undone and will remove all associated data.</p>
+                    </div>
+
+                    <!-- Merchant Details -->
+                    <div class="merchant-details-card card border-left-warning mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title text-gray-800">Merchant Information</h5>
+                            <div class="row">
+                                <div class="col-md-3 text-center mb-3">
+                                    {% if merchant.logo_url %}
+                                        <img src="{{ merchant.logo_url }}" alt="{{ merchant.company_name|default:'Merchant' }}" 
+                                             class="img-fluid rounded" style="max-height: 120px;">
+                                    {% else %}
+                                        <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 120px;">
+                                            <i class="fas fa-store fa-2x text-muted"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-9">
+                                    <table class="table table-sm table-borderless">
+                                        <tr>
+                                            <td class="fw-bold text-gray-700" style="width: 140px;">Company Name:</td>
+                                            <td>{{ merchant.company_name|default:"No Company Name" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold text-gray-700">Merchant ID:</td>
+                                            <td><code>{{ merchant.id }}</code></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold text-gray-700">User ID:</td>
+                                            <td><code>{{ merchant.user|default:"N/A" }}</code></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold text-gray-700">Status:</td>
+                                            <td>
+                                                {% if merchant.status == 'active' %}
+                                                <span class="badge bg-success rounded-pill">
+                                                    <i class="fas fa-check-circle me-1"></i>Active
+                                                </span>
+                                                {% elif merchant.status == 'inactive' %}
+                                                <span class="badge bg-warning rounded-pill">
+                                                    <i class="fas fa-pause-circle me-1"></i>Inactive
+                                                </span>
+                                                {% elif merchant.status == 'pending' %}
+                                                <span class="badge bg-info rounded-pill">
+                                                    <i class="fas fa-clock me-1"></i>Pending
+                                                </span>
+                                                {% else %}
+                                                <span class="badge bg-secondary rounded-pill">
+                                                    <i class="fas fa-question-circle me-1"></i>Unknown
+                                                </span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold text-gray-700">Created:</td>
+                                            <td>{{ merchant.created_at|slice:":19"|default:"N/A" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold text-gray-700">Last Updated:</td>
+                                            <td>{{ merchant.updated_at|slice:":19"|default:"N/A" }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Confirmation Form -->
+                    <div class="confirmation-section">
+                        <h6 class="text-gray-700 mb-3">
+                            <i class="fas fa-shield-alt me-2 text-warning"></i>
+                            Security Confirmation
+                        </h6>
+                        
+                        <form method="post" id="deleteForm">
+                            {% csrf_token %}
+                            
+                            <div class="form-group mb-4">
+                                <label for="confirmation_text" class="form-label fw-bold text-gray-700">
+                                    Type "DELETE" to confirm:
+                                </label>
+                                <input type="text" class="form-control" id="confirmation_text" 
+                                       placeholder="Enter DELETE to confirm" 
+                                       pattern="DELETE" required>
+                                <div class="form-text text-muted">
+                                    This extra step ensures you intentionally want to delete this merchant.
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="{% url 'merchant_list1' %}" class="btn btn-secondary me-md-2">
+                                    <i class="fas fa-times me-2"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn btn-danger" id="deleteButton">
+                                    <i class="fas fa-trash me-2"></i> Permanently Delete Merchant
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Warning -->
+            <div class="card border-left-danger">
+                <div class="card-body">
+                    <div class="text-center text-muted">
+                        <small>
+                            <i class="fas fa-info-circle me-1"></i>
+                            This action will permanently remove the merchant record from the system.
+                            Make sure you have appropriate backups if needed.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    // Confirmation text validation
+    const confirmationInput = document.getElementById('confirmation_text');
+    const deleteButton = document.getElementById('deleteButton');
+    const deleteForm = document.getElementById('deleteForm');
+
+    confirmationInput.addEventListener('input', function() {
+        if (this.value.toUpperCase() === 'DELETE') {
+            deleteButton.disabled = false;
+            confirmationInput.classList.remove('is-invalid');
+            confirmationInput.classList.add('is-valid');
+        } else {
+            deleteButton.disabled = true;
+            confirmationInput.classList.remove('is-valid');
+            if (this.value) {
+                confirmationInput.classList.add('is-invalid');
+            } else {
+                confirmationInput.classList.remove('is-invalid');
+            }
+        }
+    });
+
+    // Form submission handler
+    deleteForm.addEventListener('submit', function(e) {
+        if (confirmationInput.value.toUpperCase() !== 'DELETE') {
+            e.preventDefault();
+            showAlert('Please type "DELETE" to confirm deletion.', 'error');
+            return false;
+        }
+
+        // Show loading state
+        const originalText = deleteButton.innerHTML;
+        deleteButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Deleting...';
+        deleteButton.disabled = true;
+
+        // You can add additional confirmation here if needed
+        const confirmed = confirm('Are you absolutely sure? This action cannot be undone!');
+        if (!confirmed) {
+            deleteButton.innerHTML = originalText;
+            deleteButton.disabled = false;
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    // Alert function
+    function showAlert(message, type = 'info') {
+        // Remove any existing alerts
+        $('.dynamic-alert').remove();
+
+        const alertClass = type === 'error' ? 'alert-danger' : 'alert-info';
+        const alertHtml = `
+            <div class="alert ${alertClass} alert-dismissible fade show dynamic-alert" role="alert">
+                ${message}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        `;
+        
+        $(alertHtml).insertBefore('.confirmation-section').hide().fadeIn(300);
+    }
+});
+</script>
+
+<style>
+.merchant-details-card {
+    border-left: 4px solid #f6c23e !important;
+}
+
+.confirmation-section {
+    border-top: 1px solid #e3e6f0;
+    padding-top: 1.5rem;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #e74a3b 0%, #be2617 100%);
+    border: none;
+    font-weight: 600;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: linear-gradient(135deg, #be2617 0%, #9c1c10 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(190, 38, 23, 0.3);
+}
+
+.btn-danger:disabled {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    cursor: not-allowed;
+}
+
+.alert-danger.border-left-danger {
+    border-left: 4px solid #e74a3b !important;
+}
+
+.dynamic-alert {
+    animation: slideInDown 0.3s ease;
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.form-control.is-valid {
+    border-color: #28a745;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+}
+
+.form-control.is-invalid {
+    border-color: #e74a3b;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23e74a3b' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23e74a3b' stroke='none'/%3e%3c/svg%3e");
+}
+</style>
+{% endblock %}

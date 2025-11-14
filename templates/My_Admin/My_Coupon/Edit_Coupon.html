@@ -1,0 +1,250 @@
+{% extends 'My_Admin/base.html' %}
+{% load static %}
+{% block title %}Edit Coupon - Admin Portal{% endblock %}
+{% block content %}
+
+<!-- Top Bar code remains the same -->
+
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Edit Coupon</h1>
+        <a href="{% url 'coupon_list' %}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Back to Coupons
+        </a>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Form Card -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Coupon Information</h6>
+        </div>
+        <div class="card-body">
+            <form method="POST" id="editCouponForm">
+                {% csrf_token %}
+                
+                <!-- Merchant Selection -->
+                <div class="form-group">
+                    <label for="merchant">Merchant *</label>
+                    <select class="form-control" id="merchant" name="merchant" required>
+                        <option value="" disabled>Select Merchant</option>
+                        {% if merchants %}
+                            {% for merchant in merchants %}
+                            <option value="{{ merchant.id }}" {% if coupon.merchant == merchant.id %}selected{% endif %}>
+                                {{ merchant.company_name }} ({{ merchant.id }})
+                            </option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="" disabled>No merchants available</option>
+                        {% endif %}
+                    </select>
+                </div>
+                <br>
+                
+                <!-- Coupon Title -->
+                <div class="form-group">
+                    <label for="title">Coupon Title *</label>
+                    <input type="text" class="form-control" id="title" name="title" required 
+                           placeholder="Enter coupon title" value="{{ coupon.title }}">
+                </div>
+                <br>
+                
+                <!-- Description -->
+                <div class="form-group">
+                    <label for="description">Description *</label>
+                    <textarea class="form-control" id="description" name="description" required 
+                              rows="3" placeholder="Enter coupon description">{{ coupon.description }}</textarea>
+                </div>
+                <br>
+                
+                <!-- Points Required -->
+                <div class="form-group">
+                    <label for="points_required">Points Required *</label>
+                    <input type="number" class="form-control" id="points_required" name="points_required" required 
+                           min="1" placeholder="Enter points required" value="{{ coupon.points_required }}">
+                </div>
+                <br>
+                
+                <!-- Start Date -->
+                <div class="form-group">
+                    <label for="start_date">Start Date *</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date" required 
+                           value="{{ coupon.start_date|slice:':10' }}">
+                </div>
+                <br>
+                
+                <!-- Expiry Date -->
+                <div class="form-group">
+                    <label for="expiry_date">Expiry Date *</label>
+                    <input type="date" class="form-control" id="expiry_date" name="expiry_date" required 
+                           value="{{ coupon.expiry_date|slice:':10' }}">
+                </div>
+                <br>
+                
+                <!-- Terms and Conditions -->
+                <div class="form-group">
+                    <label for="terms_and_conditions_text">Terms and Conditions</label>
+                    <textarea class="form-control" id="terms_and_conditions_text" name="terms_and_conditions_text" 
+                              rows="4" placeholder="Enter terms and conditions (one per line)">{{ coupon.terms_and_conditions_display }}</textarea>
+                    <small class="form-text text-muted">
+                        Enter each term on a new line. The system will automatically convert them to a list.
+                    </small>
+                </div>
+                <br>
+                
+                <!-- Status -->
+                <div class="form-group">
+                    <label for="status">Status *</label>
+                    <select class="form-control" id="status" name="status" required>
+                        <option value="active" {% if coupon.status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if coupon.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                        <option value="expired" {% if coupon.status == 'expired' %}selected{% endif %}>Expired</option>
+                    </select>
+                </div>
+
+                <!-- Buttons -->
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-success btn-icon-split">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-save"></i>
+                        </span>
+                        <span class="text">Update Coupon</span>
+                    </button>
+                    <a href="{% url 'coupon_list' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('editCouponForm');
+    const couponId = "{{ coupon.id }}";
+    
+    // Set minimum date to today for dates
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('start_date').min = today;
+    document.getElementById('expiry_date').min = today;
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Get form data
+        const couponData = {
+            merchant: document.getElementById('merchant').value,
+            title: document.getElementById('title').value.trim(),
+            description: document.getElementById('description').value.trim(),
+            points_required: parseInt(document.getElementById('points_required').value),
+            start_date: document.getElementById('start_date').value,
+            expiry_date: document.getElementById('expiry_date').value,
+            terms_and_conditions_text: document.getElementById('terms_and_conditions_text').value,
+            status: document.getElementById('status').value
+        };
+        
+        // Validation
+        if (!couponData.merchant || !couponData.title || !couponData.description || 
+            isNaN(couponData.points_required) || couponData.points_required < 1 || 
+            !couponData.start_date || !couponData.expiry_date || !couponData.status) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                text: 'Please fill in all required fields correctly',
+                confirmButtonColor: '#d33'
+            });
+            return false;
+        }
+        
+        // Check date validation
+        if (new Date(couponData.expiry_date) < new Date(couponData.start_date)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Date Range',
+                text: 'Expiry date must be after start date',
+                confirmButtonColor: '#d33'
+            });
+            return false;
+        }
+        
+        // Process terms and conditions
+        if (couponData.terms_and_conditions_text) {
+            couponData.terms_and_conditions_text = couponData.terms_and_conditions_text
+                .split('\n')
+                .map(term => term.trim())
+                .filter(term => term.length > 0);
+        } else {
+            couponData.terms_and_conditions_text = [];
+        }
+        
+        // Get CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        // Send PUT request to update coupon
+        fetch(`https://http-127-0-0-1-8000-xzw7.onrender.com/api/merchants/coupons/${couponId}/`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify(couponData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw err; });
+            }
+            return response.json();
+        })
+        .then(data => {
+            Swal.fire({
+                icon: 'success',
+                title: 'Coupon Updated!',
+                text: 'Coupon has been successfully updated.',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'OK'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{% url 'coupon_list' %}";
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            let errorMessage = 'An error occurred while updating the coupon.';
+            
+            if (error.detail) {
+                errorMessage = error.detail;
+            } else if (typeof error === 'object') {
+                const fieldErrors = Object.values(error).flat();
+                errorMessage = fieldErrors.join(', ');
+            }
+            
+            Swal.fire({
+                icon: 'error',
+                title: 'Update Failed',
+                text: errorMessage,
+                confirmButtonColor: '#d33'
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

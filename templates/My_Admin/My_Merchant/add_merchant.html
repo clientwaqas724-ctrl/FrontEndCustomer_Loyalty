@@ -1,0 +1,254 @@
+{% extends 'My_Admin/base.html' %}
+{% load static %}
+{% block title %}Add New Merchant - Admin Portal{% endblock %}
+
+{% block content %}
+<div class="top-bar">
+    <div class="page-title">
+        <button type="button" id="sidebarCollapse" class="toggle-btn me-3">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h1>Add New Merchant</h1>
+    </div>
+    <div class="user-info">
+        <div class="user-details">
+            <div class="user-email">{{ user_profile.email }}</div>
+            {% if user_profile.role %}
+            <div class="user-role">{{ user_profile.role|title }}</div>
+            {% endif %}
+        </div>
+        <div class="user-avatar">{{ user_profile.name|first|upper }}</div>
+        <div class="user-name">{{ user_profile.name|default:"Admin" }}</div>
+    </div>
+</div>
+
+<div class="container-fluid mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'merchant_list' %}">Merchants</a></li>
+            <li class="breadcrumb-item active">Add New Merchant</li>
+        </ol>
+    </nav>
+
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-triangle{% endif %} me-2"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-12">
+            <div class="card shadow mb-4 border-0">
+                <div class="card-header py-4 d-flex justify-content-between align-items-center bg-gradient-primary text-white">
+                    <h4 class="m-0 font-weight-bold">
+                        <i class="fas fa-store me-2"></i>Merchant Information
+                    </h4>
+                    <a href="{% url 'merchant_list' %}" class="btn btn-light btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i> Back to List
+                    </a>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" id="addMerchantForm" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Personal Information -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-primary mb-3"><i class="fas fa-user me-2"></i>Personal Information</h5>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="name" class="form-label fw-bold">Full Name *</label>
+                                    <input type="text" class="form-control form-control-lg" id="name" name="name" required
+                                           placeholder="Enter merchant's full name">
+                                    <div class="form-text">The full legal name of the merchant</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="phone" class="form-label fw-bold">Phone Number *</label>
+                                    <input type="text" class="form-control form-control-lg" id="phone" name="phone" required
+                                           placeholder="Enter phone number">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label for="email" class="form-label fw-bold">Email Address *</label>
+                            <input type="email" class="form-control form-control-lg" id="email" name="email" required
+                                   placeholder="Enter email address">
+                            <div class="form-text">This will be used for login and communication</div>
+                        </div>
+
+                        <!-- Location Information -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-primary mb-3"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h5>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="address" class="form-label fw-bold">Address</label>
+                                    <input type="text" class="form-control" id="address" name="address"
+                                           placeholder="Enter street address">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="region" class="form-label fw-bold">Region</label>
+                                    <input type="text" class="form-control" id="region" name="region"
+                                           placeholder="Enter region">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="state" class="form-label fw-bold">State</label>
+                                    <input type="text" class="form-control" id="state" name="state"
+                                           placeholder="Enter state">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="postalcode" class="form-label fw-bold">Postal Code</label>
+                                    <input type="text" class="form-control" id="postalcode" name="postalcode"
+                                           placeholder="Enter postal code">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Password Section -->
+                        <div class="card border-warning mb-4">
+                            <div class="card-header bg-warning bg-opacity-10 py-3">
+                                <h5 class="m-0 font-weight-bold text-warning">
+                                    <i class="fas fa-lock me-2"></i>Account Security
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="password" class="form-label fw-bold">Password *</label>
+                                            <input type="password" class="form-control form-control-lg" id="password" name="password" required
+                                                   placeholder="Enter secure password">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="password2" class="form-label fw-bold">Confirm Password *</label>
+                                            <input type="password" class="form-control form-control-lg" id="password2" name="password2" required
+                                                   placeholder="Confirm password">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="alert alert-info mb-0">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Password Requirements:</strong> At least 8 characters with uppercase, lowercase, numbers, and special characters.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Information -->
+                        <div class="form-group mb-4">
+                            <label for="profile_image" class="form-label fw-bold">Profile Image URL</label>
+                            <input type="url" class="form-control" id="profile_image" name="profile_image"
+                                   placeholder="https://example.com/image.jpg">
+                            <div class="form-text">Optional: URL to merchant's profile picture</div>
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="form-check mb-4 p-3 bg-light rounded">
+                            <input type="checkbox" class="form-check-input" id="tc" name="tc" required checked>
+                            <label class="form-check-label fw-bold" for="tc">
+                                I confirm that the merchant has accepted the terms and conditions *
+                            </label>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-flex gap-3 justify-content-end pt-3 border-top">
+                            <a href="{% url 'merchant_list' %}" class="btn btn-secondary btn-lg px-4">
+                                <i class="fas fa-times me-2"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg px-4" id="submitBtn">
+                                <i class="fas fa-plus me-2"></i> Create Merchant
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('addMerchantForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // Form validation
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (!form.checkValidity()) {
+            e.stopPropagation();
+            form.classList.add('was-validated');
+            return false;
+        }
+        
+        // Password validation
+        const password = document.getElementById('password').value;
+        const password2 = document.getElementById('password2').value;
+        
+        if (password !== password2) {
+            alert('Passwords do not match!');
+            return false;
+        }
+        
+        if (password.length < 8) {
+            alert('Password must be at least 8 characters long!');
+            return false;
+        }
+        
+        // Password strength check (basic)
+        const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;
+        if (!strongRegex.test(password)) {
+            alert('Password must include uppercase, lowercase, numbers, and special characters!');
+            return false;
+        }
+        
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Creating Merchant...';
+        
+        // Submit form
+        form.submit();
+    });
+});
+</script>
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+.form-control-lg {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+.form-control-lg:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+.card {
+    border-radius: 15px;
+    overflow: hidden;
+}
+</style>
+{% endblock %}

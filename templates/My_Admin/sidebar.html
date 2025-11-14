@@ -1,0 +1,66 @@
+<!-- Sidebar -->
+<nav id="sidebar">
+    <div class="sidebar-header">
+        <h3><i class="fas fa-crown"></i> <span>Admin Portal</span></h3>
+    </div>
+
+    <ul class="list-unstyled components">
+        <li class="active">
+            <a href="{% url 'admin_dashboard' %}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+        </li>
+        <!-- Merchant Management with Submenu -->
+        <li class="has-submenu">
+            <a href="#"><i class="fas fa-store"></i> <span>Merchant Management</span></a>
+            <ul class="list-unstyled submenu">
+                <li><a href="{% url 'add_merchant1' %}"><i class="fas fa-plus-circle"></i> <span>Add Merchant</span></a></li>
+                <li><a href="{% url 'merchant_list1' %}"><i class="fas fa-edit"></i> <span>View All Marchant</span></a></li>
+            </ul>
+        </li>
+        
+        <!-- Coupon & Promotion Management with Submenu -->
+        <li class="has-submenu">
+            <a href="#"><i class="fas fa-tags"></i> <span>Coupon & Promotion</span></a>
+            <ul class="list-unstyled submenu">
+                <li><a href="{% url 'add_coupon' %}"><i class="fas fa-plus-circle"></i> <span>Create Coupons</span></a></li>
+                <li><a href="{% url 'coupon_list' %}"><i class="fas fa-plus-circle"></i> <span>View All Coupons</span></a></li>
+                <li><a href="{% url 'add_promotion' %}"><i class="fas fa-bullhorn"></i> <span>Post Promotions</span></a></li>
+                <li><a href="{% url 'promotion_list' %}"><i class="fas fa-edit"></i> <span>View Post Promotions</span></a></li>
+            </ul>
+        </li>
+        
+        <!-- Outlet Management with Submenu -->
+        <li class="has-submenu">
+            <a href="#"><i class="fas fa-map-marker-alt"></i> <span>Outlet Management</span></a>
+            <ul class="list-unstyled submenu">
+                <li><a href="{% url 'add_outlet' %}"><i class="fas fa-plus-circle"></i> <span>Add Merchant Outlets</span></a></li>
+                <li><a href="{% url 'outlet_list' %}"><i class="fas fa-plus-circle"></i> <span>View Merchant Outlets</span></a></li>
+            </ul>
+        </li>
+        
+        <li>
+            <a href="{% url 'merchant_list' %}"><i class="fas fa-users"></i> <span>Merchant Management</span></a>
+        </li>
+        <!-- Reports & Analytics with Submenu -->
+        <li class="has-submenu">
+            <a href="#">
+                <i class="fas fa-chart-bar"></i> <span>Reports & Analytics</span>
+            </a>
+            <ul class="list-unstyled submenu">
+                <li>
+                    <a href="{% url 'merchant_report' %}">
+                        <i class="fas fa-file-alt"></i> <span>Merchant Report</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'promotion_report' %}">
+                        <i class="fas fa-chart-line"></i> <span>Promotion Report</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <li>
+            <a href="{% url 'setting_list' %}"><i class="fas fa-cog"></i> <span>Settings</span></a>
+        </li>
+    </ul>
+</nav>
