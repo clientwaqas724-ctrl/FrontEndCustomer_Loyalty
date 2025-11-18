@@ -1,0 +1,62 @@
+{% extends 'My_Admin/base.html' %}
+{% load static %}
+{% block title %}Promotions Report - Admin Portal{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Promotions Report</h1>
+
+    <!-- Buttons for Export -->
+    <div class="mb-3">
+        <a href="{% url 'export_promotions_pdf' %}" class="btn btn-danger btn-sm">
+            <i class="fas fa-file-pdf"></i> Export PDF
+        </a>
+        <a href="{% url 'export_promotions_excel' %}" class="btn btn-success btn-sm">
+            <i class="fas fa-file-excel"></i> Export Excel
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header">
+            <h6 class="m-0 font-weight-bold text-primary">All Promotions</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Merchant</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Image</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for promo in promotions %}
+                        <tr>
+                            <td>{{ promo.id }}</td>
+                            <td>{{ promo.merchant }}</td>
+                            <td>{{ promo.title }}</td>
+                            <td>{{ promo.description|truncatewords:15 }}</td>
+                            <td>
+                                {% if promo.image_url %}
+                                <a href="{{ promo.image_url }}" target="_blank">View</a>
+                                {% else %} N/A {% endif %}
+                            </td>
+                            <td>{{ promo.start_date }}</td>
+                            <td>{{ promo.end_date }}</td>
+                            <td>{{ promo.created_at|date:"Y-m-d" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="8" class="text-center">No promotions found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

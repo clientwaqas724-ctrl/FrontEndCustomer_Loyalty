@@ -1,0 +1,253 @@
+{% extends 'My_Admin/base.html' %}
+{% load static %}
+{% block title %}Add New Coupon - Admin Portal{% endblock %}
+{% block content %}
+
+<!-- ====================== TOP BAR ====================== -->
+<div class="top-bar">
+    <div class="page-title">
+        <button type="button" id="sidebarCollapse" class="toggle-btn me-3">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h1>Add New Coupon</h1>
+    </div>
+
+    <div class="user-info">
+        <div class="user-details">
+            <div class="user-role">{{ user_profile.email }}</div>
+            {% if user_profile.role %}
+                <div class="user-role">{{ user_profile.role|title }}</div>
+            {% endif %}
+        </div>
+        <div class="user-avatar">
+            {{ user_profile.name|first|upper }}
+        </div>
+        <div class="dropdown">
+            <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle"
+               id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-ellipsis-v"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
+                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profile</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+            </ul>
+        </div>
+        <div class="user-name">{{ user_profile.name|default:"Admin" }}</div>
+    </div>
+</div>
+
+<!-- ====================== PAGE CONTENT ====================== -->
+<div class="container-fluid">
+
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Add New Coupon</h1>
+        <a href="{% url 'coupon_list' %}" class="btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Back to Coupons
+        </a>
+    </div>
+
+    {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- FORM CARD -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Coupon Information</h6>
+        </div>
+
+        <div class="card-body">
+
+            <!-- DEBUG BOX -->
+            <div id="debugInfo" class="alert alert-info d-none">
+                <strong>Debug Info:</strong>
+                <div id="debugContent"></div>
+            </div>
+
+            <form method="POST" id="addCouponForm" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Merchant -->
+                <div class="form-group">
+                    <label>Merchant *</label>
+                    <select class="form-control" id="merchant" name="merchant" required>
+                        <option value="" disabled selected>Select Merchant</option>
+                        {% for merchant in merchants %}
+                            <option value="{{ merchant.id }}">{{ merchant.company_name }} ({{ merchant.id }})</option>
+                        {% endfor %}
+                    </select>
+                </div><br>
+
+                <!-- Coupon Title -->
+                <div class="form-group">
+                    <label>Coupon Title *</label>
+                    <input type="text" id="title" name="title" class="form-control" required placeholder="10% OFF">
+                </div><br>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <label>Description *</label>
+                    <textarea id="description" name="description" class="form-control" rows="3" required></textarea>
+                </div><br>
+
+                <!-- Image Upload / URL -->
+                <div class="form-group">
+                    <label>Coupon Image (Upload or URL)</label>
+                    <!-- <input type="file" id="image" name="image" class="form-control-file" accept="image/*">
+                    <small class="text-muted">Optional: JPG, PNG, GIF</small><br> -->
+                    <input type="url" id="image_url" name="image_url" class="form-control mt-2" placeholder="Or provide external image URL">
+                </div><br>
+
+                <!-- Points -->
+                <div class="form-group">
+                    <label>Points Required *</label>
+                    <input type="number" id="points_required" name="points_required" class="form-control" min="1" required>
+                </div><br>
+
+                <!-- Dates -->
+                <div class="form-group">
+                    <label>Start Date *</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control" required>
+                </div><br>
+
+                <div class="form-group">
+                    <label>Expiry Date *</label>
+                    <input type="date" id="expiry_date" name="expiry_date" class="form-control" required>
+                </div><br>
+
+                <!-- Terms -->
+                <div class="form-group">
+                    <label>Terms & Conditions</label>
+                    <textarea id="terms_and_conditions_text" name="terms_and_conditions_text" class="form-control"
+                              rows="4" placeholder="One term per line"></textarea>
+                </div><br>
+
+                <!-- Status -->
+                <div class="form-group">
+                    <label>Status *</label>
+                    <select class="form-control" id="status" name="status" required>
+                        <option value="" selected disabled>Select status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="expired">Expired</option>
+                    </select>
+                </div>
+
+                <!-- Buttons -->
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-success btn-icon-split" id="submitBtn">
+                        <span class="icon text-white-50"><i class="fas fa-plus"></i></span>
+                        <span class="text">Create Coupon</span>
+                    </button>
+                    <a href="{% url 'coupon_list' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const form = document.getElementById("addCouponForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const debugInfo = document.getElementById("debugInfo");
+    const debugContent = document.getElementById("debugContent");
+
+    // Restrict past dates
+    const today = new Date().toISOString().split("T")[0];
+    document.getElementById("start_date").min = today;
+    document.getElementById("expiry_date").min = today;
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+
+        const formData = new FormData(form);
+
+        // Handle image file or URL
+        const imageFile = formData.get("image");
+        const imageUrl = formData.get("image_url");
+        if (!imageFile && imageUrl) {
+            formData.delete("image");
+            formData.append("image_url", imageUrl);
+        }
+
+        const couponDataDebug = {};
+        formData.forEach((value, key) => couponDataDebug[key] = value);
+        debugInfo.classList.remove("d-none");
+        debugContent.innerHTML = "<strong>FormData:</strong><pre>" + JSON.stringify(couponDataDebug, null, 2) + "</pre>";
+
+       fetch("{{ COUPONS_API_URL }}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value,
+                {% if access_token %}
+                "Authorization": "Bearer {{ access_token }}",
+                {% endif %}
+                // DO NOT set Content-Type manually for multipart/form-data
+            },
+            body: formData
+        })
+        .then(async response => {
+            const contentType = response.headers.get("content-type") || "";
+            let data;
+            if (contentType.includes("application/json")) {
+                data = await response.json();
+            } else {
+                // fallback: read as text (prevents JSON parse errors from images)
+                const text = await response.text();
+                data = { detail: text };
+            }
+
+            if (!response.ok) throw data;
+            return data;
+        })
+        .then(data => {
+            Swal.fire({
+                icon: "success",
+                title: "Coupon Created Successfully!",
+                confirmButtonColor: "#3085d6"
+            }).then(() => window.location.href = "{% url 'coupon_list' %}");
+        })
+        .catch(error => {
+            let msg = "An error occurred.";
+            if (error.detail) msg = error.detail;
+            Swal.fire({ icon: "error", title: "Creation Failed", html: msg });
+        })
+        .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML =
+                '<span class="icon text-white-50"><i class="fas fa-plus"></i></span><span class="text">Create Coupon</span>';
+        });
+
+
+
+
+
+    });
+
+});
+</script>
+
+<style>
+.is-invalid { border-color: #dc3545 !important; }
+</style>
+{% endblock %}

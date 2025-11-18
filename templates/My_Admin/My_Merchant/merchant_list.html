@@ -1,0 +1,316 @@
+{% extends 'My_Admin/base.html' %}
+{% load static %}
+{% block title %}Merchant Management - Admin Portal{% endblock %}
+
+{% block content %}
+<div class="top-bar">
+    <div class="page-title">
+        <button type="button" id="sidebarCollapse" class="toggle-btn me-3">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h1>Merchant Management</h1>
+    </div>
+    <div class="user-info">
+        <div class="user-details">
+            <div class="user-email">{{ user_profile.email }}</div>
+            {% if user_profile.role %}
+                <div class="user-role">{{ user_profile.role|title }}</div>
+            {% endif %}
+        </div>
+        <div class="user-avatar">{{ user_profile.name|first|upper }}</div>
+        <div class="dropdown">
+            <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-ellipsis-v"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
+                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profile</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+            </ul>
+        </div>
+        <div class="user-name">{{ user_profile.name|default:"Admin" }}</div>
+    </div>
+</div>
+
+<div class="container-fluid">
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Merchants</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-store fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Active Merchants</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.active }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Recent (This Year)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.recent }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Actions</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <a href="{% url 'add_merchant' %}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-plus"></i> Add Merchant
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-plus-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search & View Toggle -->
+    <div class="card shadow-sm mb-4 border-0">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <form method="GET" action="{% url 'merchant_list' %}" class="form-inline">
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="search" placeholder="Search merchants by name, email, or phone..." value="{{ search_query }}">
+                            <button class="btn btn-primary" type="submit"><i class="fas fa-search me-2"></i> Search</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="btn-group" role="group">
+                        <a href="?view=table{% if search_query %}&search={{ search_query }}{% endif %}" class="btn btn-outline-primary {% if view_type == 'table' %}active{% endif %}"><i class="fas fa-table me-2"></i> Table</a>
+                        <a href="?view=card{% if search_query %}&search={{ search_query }}{% endif %}" class="btn btn-outline-primary {% if view_type == 'card' %}active{% endif %}"><i class="fas fa-th-large me-2"></i> Cards</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if merchants %}
+        {% if view_type == 'card' %}
+        <!-- Card View -->
+        <div class="row">
+            {% for merchant in merchants %}
+            <div class="col-xl-3 col-md-4 col-sm-6 mb-4">
+                <div class="card shadow-sm h-100 merchant-card">
+                    <div class="card-header bg-gradient-primary text-white text-center pt-4 pb-3 border-0">
+                        {% if merchant.profile_image %}
+                            <img src="{{ merchant.profile_image }}" alt="{{ merchant.name }}" class="rounded-circle mb-3 profile-img" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid rgba(255,255,255,0.3);">
+                        {% else %}
+                            <div class="mx-auto rounded-circle bg-white text-primary d-flex align-items-center justify-content-center mb-3 profile-placeholder" style="width: 80px; height: 80px; font-size: 2rem; border: 3px solid rgba(255,255,255,0.3);">
+                                {{ merchant.name|first|upper }}
+                            </div>
+                        {% endif %}
+                        <h5 class="card-title mb-1 text-white">{{ merchant.name|default:"N/A" }}</h5>
+                        <span class="badge bg-light text-dark">{{ merchant.role|title }}</span>
+                    </div>
+                    <div class="card-body pt-3">
+                        <div class="merchant-info">
+                            <p class="mb-2"><i class="fas fa-envelope text-primary me-2"></i>{{ merchant.email|default:"N/A" }}</p>
+                            <p class="mb-2"><i class="fas fa-phone text-primary me-2"></i>{{ merchant.phone|default:"N/A" }}</p>
+                            {% if merchant.address %}
+                            <p class="mb-2"><i class="fas fa-map-marker-alt text-primary me-2"></i>{{ merchant.address }}</p>
+                            {% endif %}
+                            <div class="row small text-muted">
+                                <div class="col-6">
+                                    <i class="fas fa-globe me-1"></i> {{ merchant.region|default:"-" }}
+                                </div>
+                                <div class="col-6">
+                                    <i class="fas fa-city me-1"></i> {{ merchant.state|default:"-" }}
+                                </div>
+                            </div>
+                            <p class="mb-2 small text-muted"><i class="fas fa-calendar me-2"></i>Joined: {{ merchant.created_at|date:"M d, Y"|default:"N/A" }}</p>
+                        </div>
+                        <div class="merchant-badges mt-3">
+                            {% if merchant.tc %}
+                            <span class="badge bg-success me-1"><i class="fas fa-check-circle me-1"></i>Terms Accepted</span>
+                            {% else %}
+                            <span class="badge bg-warning me-1"><i class="fas fa-exclamation-circle me-1"></i>Terms Pending</span>
+                            {% endif %}
+                            {% if merchant.is_active %}
+                            <span class="badge bg-info"><i class="fas fa-circle me-1"></i>Active</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0 text-center pt-0">
+                        <a href="{% url 'update_merchant' merchant.id %}" class="btn btn-warning btn-sm"><i class="fas fa-edit me-1"></i> Edit</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Table View -->
+        <div class="card shadow-sm mb-4 border-0">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>#</th>
+                                <th>Profile</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Address</th>
+                                <th>Region</th>
+                                <th>State</th>
+                                <th>Postal Code</th>
+                                <th>Status</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for merchant in merchants %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>
+                                    {% if merchant.profile_image %}
+                                        <img src="{{ merchant.profile_image }}" class="rounded-circle" style="width:40px;height:40px;object-fit:cover;" alt="{{ merchant.name }}">
+                                    {% else %}
+                                        <div class="bg-primary text-white text-center rounded-circle d-inline-flex align-items-center justify-content-center" style="width:40px;height:40px;">
+                                            {{ merchant.name|first|upper }}
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong>{{ merchant.name }}</strong>
+                                    <br><small class="text-muted">{{ merchant.role|title }}</small>
+                                </td>
+                                <td>{{ merchant.email }}</td>
+                                <td>{{ merchant.phone }}</td>
+                                <td>{{ merchant.address|default:"-" }}</td>
+                                <td>{{ merchant.region|default:"-" }}</td>
+                                <td>{{ merchant.state|default:"-" }}</td>
+                                <td>{{ merchant.postalcode|default:"-" }}</td>
+                                <td>
+                                    {% if merchant.tc %}
+                                    <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Active</span>
+                                    {% else %}
+                                    <span class="badge bg-warning"><i class="fas fa-exclamation-circle me-1"></i>Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ merchant.created_at|date:"d M Y"|default:"N/A" }}</td>
+                                <td>
+                                    <a href="{% url 'update_merchant' merchant.id %}" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" title="Edit Merchant">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="12" class="text-center py-5 text-muted">
+                                    <i class="fas fa-store fa-4x mb-3"></i><br>
+                                    No merchants found.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if merchants.has_other_pages %}
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center my-3">
+                        {% if merchants.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page={{ merchants.previous_page_number }}&view={{ view_type }}{% if search_query %}&search={{ search_query }}{% endif %}">&laquo;</a></li>
+                        {% endif %}
+                        {% for i in merchants.paginator.page_range %}
+                        <li class="page-item {% if merchants.number == i %}active{% endif %}"><a class="page-link" href="?page={{ i }}&view={{ view_type }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ i }}</a></li>
+                        {% endfor %}
+                        {% if merchants.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ merchants.next_page_number }}&view={{ view_type }}{% if search_query %}&search={{ search_query }}{% endif %}">&raquo;</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info text-center">
+            <i class="fas fa-info-circle me-2"></i>No merchants found matching your criteria.
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el); });
+});
+</script>
+
+<style>
+.merchant-card { 
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
+    border: none; 
+    border-radius: 15px;
+}
+.merchant-card:hover { 
+    transform: translateY(-8px); 
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important; 
+}
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+.profile-img, .profile-placeholder {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.merchant-info p {
+    border-left: 3px solid #667eea;
+    padding-left: 10px;
+    margin-bottom: 8px;
+}
+.table th {
+    border-top: none;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+</style>
+{% endblock %}

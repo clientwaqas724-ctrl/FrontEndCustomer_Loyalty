@@ -1,0 +1,129 @@
+{% extends 'My_Admin/base.html' %}
+{% load static %}
+{% block title %}Edit Merchant - Admin Portal{% endblock %}
+{% block content %}
+
+<!-- Top Bar -->
+<div class="top-bar">
+    <div class="page-title">
+        <button type="button" id="sidebarCollapse" class="toggle-btn me-3">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h1>Edit Merchant</h1>
+    </div>
+    
+    <div class="user-info">
+        <div class="user-details">
+            <div class="user-email">{{ user_profile.email|default:"user@example.com" }}</div>
+            {% if user_profile.role %}
+                <div class="user-role">{{ user_profile.role|title }}</div>
+            {% else %}
+                <div class="user-role">Admin</div>
+            {% endif %}
+        </div>
+        <div class="user-avatar">
+            {% if user_profile.name %}
+                {{ user_profile.name|first|upper }}
+            {% else %}
+                {{ user_profile.email|first|upper|default:"A" }}
+            {% endif %}
+        </div>
+        <div class="dropdown">
+            <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-ellipsis-v"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
+                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profile</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+            </ul>
+        </div>
+        <div class="user-name">{{ user_profile.name|default:"Admin" }}</div>
+    </div>
+</div>
+<br>
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Edit Merchant</h1>
+        <a href="{% url 'merchant_list1' %}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Back to Merchants
+        </a>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 bg-primary text-white">
+            <h6 class="m-0 font-weight-bold">Merchant Details - #{{ merchant.id }}</h6>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="company_name" class="form-label fw-bold">Company Name</label>
+                            <input type="text" class="form-control" id="company_name" name="company_name" 
+                                   value="{{ merchant.company_name|default:'' }}" required>
+                            <div class="form-text">Enter the merchant's company name</div>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="logo_url" class="form-label fw-bold">Logo URL</label>
+                            <input type="url" class="form-control" id="logo_url" name="logo_url" 
+                                   value="{{ merchant.logo_url|default:'' }}">
+                            <div class="form-text">Enter the URL for the merchant's logo image</div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="status" class="form-label fw-bold">Status</label>
+                            <select class="form-control" id="status" name="status" required>
+                                <option value="active" {% if merchant.status == 'active' %}selected{% endif %}>Active</option>
+                                <option value="inactive" {% if merchant.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                                <option value="pending" {% if merchant.status == 'pending' %}selected{% endif %}>Pending</option>
+                            </select>
+                            <div class="form-text">Set the merchant's account status</div>
+                        </div>
+                        
+                        <div class="card bg-light mt-3">
+                            <div class="card-body">
+                                <h6 class="card-title">Merchant Information</h6>
+                                <p class="mb-1"><strong>Merchant ID:</strong> {{ merchant.id }}</p>
+                                <p class="mb-1"><strong>User ID:</strong> {{ merchant.user }}</p>
+                                <p class="mb-1"><strong>Created:</strong> {{ merchant.created_at|slice:":19"|default:"N/A" }}</p>
+                                <p class="mb-0"><strong>Last Updated:</strong> {{ merchant.updated_at|slice:":19"|default:"N/A" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 pt-3 border-top">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i> Update Merchant
+                    </button>
+                    <a href="{% url 'merchant_list1' %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-2"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
