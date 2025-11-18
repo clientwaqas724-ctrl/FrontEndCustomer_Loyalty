@@ -483,9 +483,9 @@ def add_merchant1(request):
         }
 
         # Basic validation only
-        if not merchant_data['user'] or not merchant_data['outlet']:
-            messages.error(request, "Please select both a user and an outlet.")
-            return redirect('add_merchant1')
+        # if not merchant_data['user'] or not merchant_data['outlet']:
+        #     messages.error(request, "Please select both a user and an outlet.")
+        #     return redirect('add_merchant1')
 
         try:
             # ✅ Directly create merchant (no outlet or user check)
@@ -2431,4 +2431,5 @@ def update_password(request):
         "uid": uid,
         "token": token,
         "email": email
+
     })
