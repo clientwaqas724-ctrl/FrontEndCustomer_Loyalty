@@ -1,28 +1,31 @@
 {% extends 'My_Admin/base.html' %}
 {% load static %}
 {% block title %}Add New Merchant - Admin Portal{% endblock %}
-{% block content %}
 
-<div class="top-bar">
-    <div class="page-title">
-        <button type="button" id="sidebarCollapse" class="toggle-btn me-3">
+{% block content %}
+<div class="top-bar d-flex justify-content-between align-items-center mb-4">
+    <div class="page-title d-flex align-items-center">
+        <button type="button" id="sidebarCollapse" class="btn btn-light me-3">
             <i class="fas fa-bars"></i>
         </button>
-        <h1>Dashboard</h1>
+        <h1 class="h4 m-0">Dashboard</h1>
     </div>
 
-    <div class="user-info">
-        <div class="user-details">
-            <div class="user-role">{{ user_profile.email }}</div>
+    <div class="user-info d-flex align-items-center">
+        <div class="text-end me-3">
+            <div class="user-email">{{ user_profile.email }}</div>
             {% if user_profile.role %}
-                <div class="user-role">{{ user_profile.role|title }}</div>
+            <div class="user-role text-muted">{{ user_profile.role|title }}</div>
             {% endif %}
         </div>
 
-        <div class="user-avatar">{{ user_profile.name|first|upper }}</div>
+        <div class="user-avatar rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-2" 
+             style="width:40px; height:40px;">
+            {{ user_profile.name|first|upper }}
+        </div>
 
         <div class="dropdown">
-            <a href="#" class="dropdown-toggle text-dark" data-bs-toggle="dropdown">
+            <a href="#" class="text-dark" data-bs-toggle="dropdown">
                 <i class="fas fa-ellipsis-v"></i>
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
@@ -32,80 +35,98 @@
                 <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
             </ul>
         </div>
-
-        <div class="user-name">{{ user_profile.name|default:"Admin" }}</div>
     </div>
 </div>
 
-
 <div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h5 text-gray-800">Add New Merchant</h2>
+        <a href="{% url 'merchant_list1' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Back to Merchants
+        </a>
+    </div>
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="font-weight-bold text-primary">Merchant Information</h6>
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white py-3">
+            <h6 class="m-0 font-weight-bold">Merchant Information</h6>
         </div>
 
         <div class="card-body">
             <form method="POST" id="addMerchantForm">
                 {% csrf_token %}
-                <!-- ⭐ User Dropdown (SHOW ALL USERS) -->
-                <div class="form-group">
-                    <label for="user">User *</label>
-                    <select class="form-control" id="user" name="user" required>
-                        <option value="">Select User...</option>
 
+                <!-- User Dropdown -->
+                <div class="mb-3">
+                    <label for="user" class="form-label">User *</label>
+                    <select class="form-select" id="user" name="user" required>
+                        <option value="">Select User...</option>
                         {% for u in users %}
-                            <option value="{{ u.id }}">
-                                {{ u.name }} — {{ u.email }} ({{ u.role|title }})
-                            </option>
+                        <option value="{{ u.id }}">{{ u.name }} — {{ u.email }} ({{ u.role|title }})</option>
                         {% endfor %}
                     </select>
                 </div>
-                <br>
+
                 <!-- Company Name -->
-                <div class="form-group">
-                    <label for="company_name">Company Name *</label>
+                <div class="mb-3">
+                    <label for="company_name" class="form-label">Company Name *</label>
                     <input type="text" class="form-control" id="company_name" name="company_name" required>
                 </div>
-                <br>
 
                 <!-- Logo URL -->
-                <div class="form-group">
-                    <label for="logo_url">Logo URL *</label>
+                <div class="mb-3">
+                    <label for="logo_url" class="form-label">Logo URL *</label>
                     <input type="url" class="form-control" id="logo_url" name="logo_url" required>
                 </div>
-                <br>
 
                 <!-- Status -->
-                <div class="form-group">
-                    <label>Status *</label>
-                    <select class="form-control" id="status" name="status" required>
+                <div class="mb-4">
+                    <label for="status" class="form-label">Status *</label>
+                    <select class="form-select" id="status" name="status" required>
                         <option value="">Select Status...</option>
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                     </select>
                 </div>
-                <br>
 
-                <!-- Outlet -->
-                <div class="form-group">
-                    <label for="outlet">Outlet *</label>
-                    <select class="form-control" id="outlet" name="outlet" required>
-                        <option value="">Select Outlet...</option>
-
-                        {% for o in outlets %}
-                            <option value="{{ o.id }}">{{ o.name }} ({{ o.city }})</option>
-                        {% endfor %}
-                    </select>
+                <!-- Submit Buttons -->
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-plus me-1"></i> Register Merchant
+                    </button>
+                    <a href="{% url 'merchant_list1' %}" class="btn btn-outline-secondary">Cancel</a>
                 </div>
-                <br>
-
-                <button type="submit" class="btn btn-success">Create Merchant</button>
-                <a href="{% url 'merchant_list1' %}" class="btn btn-secondary">Cancel</a>
-
             </form>
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('addMerchantForm');
+    form.addEventListener('submit', function(e) {
+        const user = document.getElementById('user').value;
+        const companyName = document.getElementById('company_name').value.trim();
+        const logoUrl = document.getElementById('logo_url').value.trim();
+        const status = document.getElementById('status').value;
+
+        if (!user || !companyName || !logoUrl || !status) {
+            e.preventDefault();
+            alert('Please fill in all required fields.');
+        }
+    });
+});
+</script>
 {% endblock %}
