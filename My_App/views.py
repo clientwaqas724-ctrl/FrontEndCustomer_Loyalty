@@ -439,8 +439,9 @@ def get_current_user_from_api(request):
 #############################################################################################################################################################
 ##########################################################################################################################################################
 def add_merchant1(request):
-    """Add merchant and show only admin + merchant users in dropdown."""
-
+    """Add merchant form: only admin + merchant users; fake outlet assignment."""
+    
+    # Get current user profile
     user_profile = request.session.get('user_profile')
     if not user_profile:
         user_profile = get_current_user_from_api(request)
@@ -450,48 +451,37 @@ def add_merchant1(request):
     token = request.session.get('access_token')
     headers = {'Authorization': f'Bearer {token}'} if token else {}
 
-    # ---------------------------------------------------------
-    # Fetch ALL users from role-search API
-    # ---------------------------------------------------------
+    # -----------------------------
+    # Fetch all users (admin + merchant)
+    # -----------------------------
     users = []
     if token:
         try:
             resp = requests.get(USERS_ROLE_SEARCH_API_URL, headers=headers)
             if resp.status_code == 200:
                 all_users = resp.json().get("users", [])
-                # ⭐ Filter: only admin + merchant
                 users = [u for u in all_users if u.get("role") in ("admin", "merchant")]
             else:
                 messages.warning(request, f"Failed to load users (HTTP {resp.status_code})")
         except requests.RequestException as e:
             messages.error(request, f"Error fetching users: {str(e)}")
 
-    # ---------------------------------------------------------
-    # Fetch outlets
-    # ---------------------------------------------------------
-    outlets = []
-    if token:
-        try:
-            outlet_resp = requests.get(OUTLETS_API_URL, headers=headers)
-            if outlet_resp.status_code == 200:
-                outlets = outlet_resp.json()
-        except:
-            pass
-
-    # ---------------------------------------------------------
-    # Create Merchant
-    # ---------------------------------------------------------
+    # -----------------------------
+    # Handle POST (Create Merchant)
+    # -----------------------------
     if request.method == 'POST':
         merchant_data = {
             'user': request.POST.get('user'),
             'company_name': request.POST.get('company_name'),
             'logo_url': request.POST.get('logo_url'),
             'status': request.POST.get('status'),
-            'outlet': request.POST.get('outlet')
+            # Assign a fake/default outlet value
+            'outlet': 'fake-outlet-id'  
         }
 
-        if not merchant_data['user'] or not merchant_data['outlet']:
-            messages.error(request, "Please select user and outlet.")
+        # Basic validation
+        if not merchant_data['user'] or not merchant_data['company_name'] or not merchant_data['logo_url'] or not merchant_data['status']:
+            messages.error(request, "Please fill all required fields.")
             return redirect('add_merchant1')
 
         try:
@@ -502,20 +492,23 @@ def add_merchant1(request):
             )
 
             if create_resp.status_code == 201:
-                messages.success(request, "Merchant created successfully!")
+                messages.success(request, "Merchant registered successfully!")
                 return redirect('merchant_list1')
             else:
-                messages.error(request, f"Failed: {create_resp.json()}")
+                try:
+                    err_data = create_resp.json()
+                    messages.error(request, f"Failed to create merchant: {err_data}")
+                except Exception:
+                    messages.error(request, f"Failed to create merchant (HTTP {create_resp.status_code})")
 
         except requests.RequestException as e:
-            messages.error(request, f"API Error: {str(e)}")
+            messages.error(request, f"Error communicating with API: {str(e)}")
 
-    # ---------------------------------------------------------
-    # Render
-    # ---------------------------------------------------------
+    # -----------------------------
+    # Render template
+    # -----------------------------
     context = {
-        'users': users,  # now only admin + merchant
-        'outlets': outlets,
+        'users': users,  # Only admin + merchant
         'user_profile': user_profile or {}
     }
     return render(request, 'My_Admin/Merchants/add_merchant.html', context)
@@ -2438,4 +2431,5 @@ def update_password(request):
         "email": email
 
     })
+
 
